@@ -440,9 +440,24 @@ function InsightDetail({ insight }: { insight: Insight }) {
     <div className="drawer-content">
       <DetailBlock title="Core idea" body={insight.coreIdea} />
       <DetailBlock title="Why it matters" body={insight.whyItMatters} />
-      <DetailList title="Technical breakdown" items={insight.breakdown} />
+      <InsightSections sections={insight.sections} />
+      <DetailList title="Quick scan" items={insight.breakdown} />
       <ExternalLinks links={{ linkedin: insight.originalUrl }} />
     </div>
+  );
+}
+
+function InsightSections({ sections }: { sections: Insight["sections"] }) {
+  return (
+    <section className="article-sections">
+      {sections.map((section) => (
+        <article className="article-section" key={section.title}>
+          <h3>{section.title}</h3>
+          <p>{section.body}</p>
+          {section.bullets && <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul>}
+        </article>
+      ))}
+    </section>
   );
 }
 

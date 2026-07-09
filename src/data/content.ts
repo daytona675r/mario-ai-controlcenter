@@ -29,6 +29,11 @@ export type Insight = {
   coreIdea: string;
   whyItMatters: string;
   breakdown: string[];
+  sections: {
+    title: string;
+    body: string;
+    bullets?: string[];
+  }[];
   tags: string[];
   relatedProjects: string[];
   originalUrl?: string;
@@ -254,6 +259,29 @@ export const insights: Insight[] = [
       "Data is pinned by DVC and object storage hashes",
       "Experiments and release models are pinned through MLflow tracking and registry metadata"
     ],
+    sections: [
+      {
+        title: "The six things that must be pinned",
+        body: "The article frames reproducibility as a system property. Each moving part needs one owner and one pin mechanism.",
+        bullets: [
+          "Code -> Git -> commit SHA",
+          "Python environment -> Pixi or equivalent -> lockfile",
+          "Data -> DVC and object storage -> content hash",
+          "Experiments -> MLflow tracking -> run ID",
+          "Release models -> MLflow registry -> model version and alias",
+          "Deployment -> infrastructure repo -> alias resolved at startup"
+        ]
+      },
+      {
+        title: "Why this matters",
+        body: "If a concern is not pinned somewhere, the team does not have a source of truth. It has a guess. That guess becomes painful during rollbacks, audits and production incidents.",
+        bullets: [
+          "Training runs become hard to reproduce",
+          "Model rollbacks depend on informal knowledge",
+          "Production incidents are traced across partial version records instead of one coherent chain"
+        ]
+      }
+    ],
     tags: ["MLOps", "MLflow", "DVC", "Reproducibility", "Platform Engineering"],
     relatedProjects: ["production-mlops-pipeline"]
   },
@@ -270,6 +298,29 @@ export const insights: Insight[] = [
       "Tracked: experiments and data versions exist, but automation is missing",
       "Validated: CI catches data and training pipeline failures early",
       "Promoted: alias flips and deployment gates move models without a person in the hot path"
+    ],
+    sections: [
+      {
+        title: "Stage 1: Manual",
+        body: "Training happens locally, weights move by hand, and one person often becomes the deployment path. There is no durable audit trail."
+      },
+      {
+        title: "Stage 2: Tracked",
+        body: "Experiments and datasets are logged, so the team can find what happened. The next step is turning that knowledge into automation."
+      },
+      {
+        title: "Stage 3: Validated",
+        body: "CI starts catching broken data, import errors, configuration drift and tiny training failures before expensive jobs run."
+      },
+      {
+        title: "Stage 4-5: Gated and promoted",
+        body: "Models pass quality and deployment gates, then promotion becomes an alias or approval signal that triggers the downstream pipeline.",
+        bullets: [
+          "The model is validated before registration or promotion",
+          "The deployment smoke test verifies the server boundary",
+          "Rollback and auditability are designed into the flow"
+        ]
+      }
     ],
     tags: ["MLOps", "Platform Engineering", "CI/CD", "MLflow", "DevOps"],
     relatedProjects: ["production-mlops-pipeline"]
@@ -288,6 +339,26 @@ export const insights: Insight[] = [
       "Wrong configs can produce plausible but useless results",
       "Unreproducible runs waste value even when metrics look good"
     ],
+    sections: [
+      {
+        title: "Where the waste hides",
+        body: "The post treats GPU waste as preventable failure time, not just hardware cost.",
+        bullets: [
+          "Bad data: zero-annotation images, schema drift and corrupted files",
+          "VRAM mismatch: image size, anchors and batch shape exceed memory assumptions",
+          "Wrong config: the run completes but answers the wrong experiment question",
+          "Environment mismatch: CUDA or package differences appear only on the training agent"
+        ]
+      },
+      {
+        title: "The audit question",
+        body: "For each failure category, estimate how often it happens and how long the average failed run takes. That number is the preventable waste a CPU-side CI gate can reduce."
+      },
+      {
+        title: "Portfolio signal",
+        body: "This is the managerial argument for MLOps: the pipeline is not overhead if it prevents expensive, low-signal training runs."
+      }
+    ],
     tags: ["MLOps", "GPU", "CI/CD", "Data Quality", "Machine Learning"],
     relatedProjects: ["production-mlops-pipeline"]
   },
@@ -304,6 +375,30 @@ export const insights: Insight[] = [
       "The agent reads the codebase, writes the validation script and wires CI",
       "The engineer reviews whether the working code enforces the right contract",
       "The failure mode is code that runs correctly but solves the wrong problem"
+    ],
+    sections: [
+      {
+        title: "The requirement",
+        body: "After every full GPU training run, validate that the experiment tracker contains the required reproducibility metadata, bounded metrics and no secrets in logged parameters.",
+        bullets: [
+          "Required tags: commit, branch, dataset version and pipeline ID",
+          "Metric checks: expected bounds for key training outputs",
+          "Safety checks: no secret-looking values in tracked params"
+        ]
+      },
+      {
+        title: "What the agent can do",
+        body: "The agent can read the codebase, identify where metadata is logged, write the validation script, add a CI step and iterate on failing tests."
+      },
+      {
+        title: "What the engineer still owns",
+        body: "The important review is not just whether the code compiles. It is whether the generated implementation enforces the right production contract.",
+        bullets: [
+          "Precise acceptance criteria matter more than vague prompts",
+          "Review catches correct-looking code that validates the wrong thing",
+          "The engineer moves toward requirements, boundaries and judgment"
+        ]
+      }
     ],
     tags: ["Agentic AI", "MLOps", "CI/CD", "LLMOps", "Platform Engineering"],
     relatedProjects: ["production-mlops-pipeline"]
@@ -322,6 +417,36 @@ export const insights: Insight[] = [
       "Metadata gate confirms the run can be reproduced and audited",
       "Deployment gate verifies the model server starts and answers inference requests"
     ],
+    sections: [
+      {
+        title: "Gate 1: Data readiness",
+        body: "Before training starts, the pipeline checks whether the expected data exists, is shaped correctly and can be consumed by the training code.",
+        bullets: [
+          "Missing paths or object-store failures",
+          "Schema or label format drift",
+          "Empty or invalid annotations",
+          "Wrong dataset version for the run"
+        ]
+      },
+      {
+        title: "Gate 2: Training smoke test",
+        body: "A tiny CPU run proves that the training pipeline can boot, load data, step through the model and fail fast on NaNs, import errors or config mistakes."
+      },
+      {
+        title: "Gate 3: Reproducibility metadata",
+        body: "After real training, the run must contain enough metadata to reproduce and audit it later.",
+        bullets: [
+          "Git commit and branch",
+          "Dataset hash or DVC version",
+          "Environment lock or image reference",
+          "MLflow run ID, params and metrics"
+        ]
+      },
+      {
+        title: "Gate 4: Deployment smoke test",
+        body: "The model server or container starts with the candidate weights and answers an inference request before anything is promoted."
+      }
+    ],
     tags: ["MLOps", "CI/CD", "PyTorch", "MLflow", "Production AI"],
     relatedProjects: ["production-mlops-pipeline"]
   },
@@ -338,6 +463,26 @@ export const insights: Insight[] = [
       "Store it as a versioned artifact that pulls quickly",
       "Keep full data validation separate from smoke testing",
       "Treat sample drift as a meaningful failure, not noise"
+    ],
+    sections: [
+      {
+        title: "The problem with real data in CI",
+        body: "Pulling the full training dataset makes every commit slow, brittle and dependent on credentials, network state and changing production data."
+      },
+      {
+        title: "The problem with fake data",
+        body: "Synthetic samples prove that code can execute, but they often miss the actual label distribution, file layout and edge cases that break the pipeline."
+      },
+      {
+        title: "The middle path",
+        body: "Use a tiny, pre-generated subset of real data as a pinned CI artifact.",
+        bullets: [
+          "Small enough to pull in seconds",
+          "Real enough to catch format and schema issues",
+          "Stable enough that failures mean something",
+          "Separate from the full real-data validation gate"
+        ]
+      }
     ],
     tags: ["MLOps", "CI/CD", "DVC", "Data Engineering", "Testing"],
     relatedProjects: ["production-mlops-pipeline"]
@@ -356,6 +501,31 @@ export const insights: Insight[] = [
       "The pipeline validates the alias, builds the image and runs smoke tests",
       "Production builds use the commit that produced the weights, not current HEAD"
     ],
+    sections: [
+      {
+        title: "Before: the bottleneck person",
+        body: "The old workflow is familiar: a scientist trains a model, saves weights somewhere, asks someone else to deploy, and the system relies on coordination instead of a contract."
+      },
+      {
+        title: "The alias as approval",
+        body: "A registry alias such as staging or production becomes the human approval gesture. The pipeline observes the alias and owns the rest."
+      },
+      {
+        title: "The promotion chain",
+        body: "After the alias is set, automation validates the model and builds the deployment artifact.",
+        bullets: [
+          "Resolve the alias to a concrete model version",
+          "Verify the producing commit is valid",
+          "Build a container using the model from the registry",
+          "Run deployment smoke tests",
+          "Push the staged or production image"
+        ]
+      },
+      {
+        title: "Why production builds use the producing commit",
+        body: "Production should ship the code that produced and validated the weights, not whatever happens to be on main when the deployment runs."
+      }
+    ],
     tags: ["MLOps", "MLflow", "Model Registry", "CI/CD", "Platform Engineering"],
     relatedProjects: ["production-mlops-pipeline"]
   },
@@ -372,6 +542,30 @@ export const insights: Insight[] = [
       "Compare future model candidates against the snapshot",
       "Flag or block changes that exceed agreed thresholds",
       "Use differences as review material, not just pass/fail output"
+    ],
+    sections: [
+      {
+        title: "The gap in standard evaluation",
+        body: "Aggregate metrics can improve while individual predictions change in ways that matter to users, reviewers or downstream systems."
+      },
+      {
+        title: "What a golden snapshot stores",
+        body: "At promotion time, the system stores per-sample predictions for a fixed representative test set, plus metadata describing the model and run that produced them.",
+        bullets: [
+          "Prediction artifact",
+          "Model version",
+          "Git commit",
+          "MLflow run ID"
+        ]
+      },
+      {
+        title: "How release comparison works",
+        body: "Every future candidate predicts on the same fixed set. If the behavior delta exceeds the agreed threshold, promotion fails or requires review."
+      },
+      {
+        title: "Why it matters",
+        body: "In high-stakes domains, consistency is not a side effect. It is a feature that needs its own gate."
+      }
     ],
     tags: ["MLOps", "Evaluation", "Data Quality", "Production AI"],
     relatedProjects: ["production-mlops-pipeline"]
