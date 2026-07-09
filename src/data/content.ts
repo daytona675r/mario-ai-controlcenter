@@ -241,27 +241,129 @@ export const projects: Project[] = [
 
 export const insights: Insight[] = [
   {
-    id: "four-gates-ai-readiness",
-    title: "The Four Gates of AI Readiness",
+    id: "ml-source-of-truth-matrix",
+    title: "The ML Source of Truth Matrix",
     readTime: "5 min read",
-    date: "Featured",
-    summary: "Why production ML pipelines need multiple validation gates before a model touches production.",
+    date: "Live",
+    summary: "A six-row framework for deciding where code, environments, data, experiments, models and deployments are version-pinned.",
+    coreIdea: "Every ML system has multiple sources of truth unless ownership is explicit. The matrix assigns one tool and one pin mechanism to each concern.",
+    whyItMatters: "Without clear ownership, teams cannot reproduce training runs, trace incidents, or know exactly which model and code are running.",
+    breakdown: [
+      "Code is pinned by Git commit SHA",
+      "Python environment is pinned by a lockfile",
+      "Data is pinned by DVC and object storage hashes",
+      "Experiments and release models are pinned through MLflow tracking and registry metadata"
+    ],
+    tags: ["MLOps", "MLflow", "DVC", "Reproducibility", "Platform Engineering"],
+    relatedProjects: ["production-mlops-pipeline"]
+  },
+  {
+    id: "mlops-maturity-ladder",
+    title: "The MLOps Maturity Ladder",
+    readTime: "6 min read",
+    date: "Live",
+    summary: "A five-stage model for understanding where an ML team is today and what the next infrastructure step costs.",
+    coreIdea: "Teams move from manual model handling to tracked, validated, gated and finally promoted workflows. The useful question is not perfection, but the next rung.",
+    whyItMatters: "Recruiters and engineering leaders can quickly see that the work is framed as systems maturity, not isolated tooling.",
+    breakdown: [
+      "Manual: local training, manual deployment, no audit trail",
+      "Tracked: experiments and data versions exist, but automation is missing",
+      "Validated: CI catches data and training pipeline failures early",
+      "Promoted: alias flips and deployment gates move models without a person in the hot path"
+    ],
+    tags: ["MLOps", "Platform Engineering", "CI/CD", "MLflow", "DevOps"],
+    relatedProjects: ["production-mlops-pipeline"]
+  },
+  {
+    id: "gpu-waste-audit",
+    title: "The GPU Waste Audit",
+    readTime: "6 min read",
+    date: "Live",
+    summary: "How preventable data, environment and reproducibility failures quietly burn expensive GPU time.",
+    coreIdea: "Many GPU failures are not model problems. They are pipeline, data, config and environment problems that could be caught in minutes on CPU.",
+    whyItMatters: "It turns MLOps investment into a practical cost and reliability argument that engineering managers understand.",
+    breakdown: [
+      "Bad data should fail before a long training run starts",
+      "VRAM math should be checked before the job reaches the GPU",
+      "Wrong configs can produce plausible but useless results",
+      "Unreproducible runs waste value even when metrics look good"
+    ],
+    tags: ["MLOps", "GPU", "CI/CD", "Data Quality", "Machine Learning"],
+    relatedProjects: ["production-mlops-pipeline"]
+  },
+  {
+    id: "agentic-mlops-ci-gate",
+    title: "Agentic MLOps: From Requirement to Running CI Gate",
+    readTime: "8 min read",
+    date: "Live",
+    summary: "A concrete example of using an AI agent to implement a post-training validation gate, with human review as the control point.",
+    coreIdea: "Agentic engineering moves the engineer from writing every implementation detail toward precise requirements and rigorous review.",
+    whyItMatters: "It shows modern AI-assisted engineering in a production-minded context without pretending the review step disappears.",
+    breakdown: [
+      "The requirement defines metadata, metric and secret-scanning checks",
+      "The agent reads the codebase, writes the validation script and wires CI",
+      "The engineer reviews whether the working code enforces the right contract",
+      "The failure mode is code that runs correctly but solves the wrong problem"
+    ],
+    tags: ["Agentic AI", "MLOps", "CI/CD", "LLMOps", "Platform Engineering"],
+    relatedProjects: ["production-mlops-pipeline"]
+  },
+  {
+    id: "four-gates-ai-readiness",
+    title: "Four Gates Before a Model Touches Production",
+    readTime: "5 min read",
+    date: "Live",
+    summary: "Why production ML pipelines need more than one accuracy check before a model can ship.",
     coreIdea: "Most ML pipelines have one gate: a metric. Production systems need gates for data, training execution, reproducibility metadata and deployment behavior.",
     whyItMatters: "A model can look good in a notebook and still fail when it meets real data, CI, infrastructure and deployment boundaries.",
     breakdown: [
-      "Data gate: is the input actually present, shaped correctly and usable?",
-      "Training smoke gate: can the pipeline boot and complete a tiny run without wasting GPU time?",
-      "Metadata gate: does the run contain the reproducibility information needed later?",
-      "Deployment gate: does the model server start and answer inference requests?"
+      "Data gate catches missing files, schema drift and unusable inputs",
+      "Training smoke gate catches pipeline failures before wasting GPU time",
+      "Metadata gate confirms the run can be reproduced and audited",
+      "Deployment gate verifies the model server starts and answers inference requests"
     ],
     tags: ["MLOps", "CI/CD", "PyTorch", "MLflow", "Production AI"],
     relatedProjects: ["production-mlops-pipeline"]
   },
   {
+    id: "ci-datasets",
+    title: "CI Datasets: Testing Pipelines Without Pulling the World",
+    readTime: "5 min read",
+    date: "Live",
+    summary: "A practical middle path between huge production datasets and fake synthetic samples in CI.",
+    coreIdea: "A CI dataset should be tiny, real, versioned and fast enough to pull on every run. It should catch pipeline breakage without pretending to replace full data validation.",
+    whyItMatters: "CI for ML needs fast feedback and realistic failure signals without turning every commit into an expensive data operation.",
+    breakdown: [
+      "Use a small pre-generated subset of real data",
+      "Store it as a versioned artifact that pulls quickly",
+      "Keep full data validation separate from smoke testing",
+      "Treat sample drift as a meaningful failure, not noise"
+    ],
+    tags: ["MLOps", "CI/CD", "DVC", "Data Engineering", "Testing"],
+    relatedProjects: ["production-mlops-pipeline"]
+  },
+  {
+    id: "alias-based-model-promotion",
+    title: "Alias-Based Model Promotion",
+    readTime: "9 min read",
+    date: "Live",
+    summary: "How a model registry alias can become the only human approval gesture while the pipeline handles validation, packaging and release.",
+    coreIdea: "The alias flip is the approval. Everything downstream should be automated, gated and tied to the exact commit that produced the weights.",
+    whyItMatters: "It removes the bottleneck person from deployment while improving traceability, rollback and confidence in what was actually tested.",
+    breakdown: [
+      "Candidate models are registered after a sweep",
+      "A human sets a staging or production alias in the registry",
+      "The pipeline validates the alias, builds the image and runs smoke tests",
+      "Production builds use the commit that produced the weights, not current HEAD"
+    ],
+    tags: ["MLOps", "MLflow", "Model Registry", "CI/CD", "Platform Engineering"],
+    relatedProjects: ["production-mlops-pipeline"]
+  },
+  {
     id: "golden-snapshots",
-    title: "Golden Snapshots: Reliable AI Beyond Metrics",
+    title: "Golden Snapshots: Catching Models That Change Answers",
     readTime: "7 min read",
-    date: "Planned",
+    date: "Live",
     summary: "How fixed prediction snapshots catch behavior changes that aggregate metrics can hide.",
     coreIdea: "A model can improve a headline metric and still change answers on important existing cases. Golden snapshots make those changes visible.",
     whyItMatters: "In regulated or high-stakes domains, consistency and explainable change are just as important as raw performance improvements.",
@@ -273,57 +375,6 @@ export const insights: Insight[] = [
     ],
     tags: ["MLOps", "Evaluation", "Data Quality", "Production AI"],
     relatedProjects: ["production-mlops-pipeline"]
-  },
-  {
-    id: "ci-datasets",
-    title: "CI Datasets: Testing Pipelines Without Pulling the World",
-    readTime: "8 min read",
-    date: "Planned",
-    summary: "A practical middle path between fake toy data and massive production datasets in CI.",
-    coreIdea: "Your CI smoke test should not pull 50 GB of real data. It also should not use fake data your pipeline would never see.",
-    whyItMatters: "CI for ML needs to catch pipeline breakage early without turning every commit into an expensive training job.",
-    breakdown: [
-      "Use tiny realistic samples for pipeline smoke tests",
-      "Keep full data validation separate from smoke testing",
-      "Treat sample drift as a signal, not just a nuisance",
-      "Optimize for fast feedback and high failure relevance"
-    ],
-    tags: ["MLOps", "CI/CD", "Data", "Testing"],
-    relatedProjects: ["production-mlops-pipeline"]
-  },
-  {
-    id: "pulse-boundaries",
-    title: "PULSE: Reliability Lives in the Boundaries",
-    readTime: "6 min read",
-    date: "Published idea",
-    summary: "Why splitting GenAI workflows into small jobs plus verifiable gates beats giant prompts.",
-    coreIdea: "Instead of hoping one prompt works, give the model smaller responsibilities and check the handoff between stages.",
-    whyItMatters: "Most useful GenAI systems are workflows, not chat boxes. Reliability emerges from boundaries, retries and structured outputs.",
-    breakdown: [
-      "Research is separate from memory retrieval",
-      "Planning is separate from generation",
-      "Evaluation is separate from writing",
-      "Retry loops are triggered by quality gates, not vibes"
-    ],
-    tags: ["LangGraph", "AI Agents", "Evaluation", "RAG"],
-    relatedProjects: ["pulse-contentagent"]
-  },
-  {
-    id: "rag-chunking",
-    title: "RAG Chunking Strategies That Actually Work",
-    readTime: "6 min read",
-    date: "Evergreen",
-    summary: "Chunking is not a preprocessing detail. It defines what your retriever can understand.",
-    coreIdea: "Bad chunking creates bad retrieval, and bad retrieval creates confident wrong answers.",
-    whyItMatters: "In production RAG systems, answer quality often fails before the model sees the prompt.",
-    breakdown: [
-      "Chunk for semantic completeness",
-      "Preserve enough surrounding context",
-      "Evaluate retrieval examples manually before scaling",
-      "Tune chunking based on the questions users actually ask"
-    ],
-    tags: ["RAG", "LLMs", "Vector DBs", "LangChain"],
-    relatedProjects: ["rag-knowledge-system", "pulse-contentagent"]
   }
 ];
 
