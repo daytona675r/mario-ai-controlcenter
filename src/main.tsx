@@ -11,6 +11,7 @@ import {
   Home,
   Layers3,
   Mail,
+  Menu,
   Moon,
   Search,
   Sparkles,
@@ -43,6 +44,7 @@ function App() {
   const [activeTag, setActiveTag] = useState<string>("All");
   const [query, setQuery] = useState("");
   const [detail, setDetail] = useState<Detail>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -66,13 +68,24 @@ function App() {
 
   return (
     <div className={`app-shell ${theme}`}>
-      <Sidebar mode={mode} setMode={setMode} />
+      <Sidebar
+        mode={mode}
+        setMode={setMode}
+        query={query}
+        setQuery={setQuery}
+        theme={theme}
+        setTheme={setTheme}
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+      {mobileMenuOpen && <button className="mobile-scrim" aria-label="Close menu" onClick={() => setMobileMenuOpen(false)} />}
       <main className="main">
         <Topbar
           query={query}
           setQuery={setQuery}
           theme={theme}
           setTheme={setTheme}
+          onOpenMenu={() => setMobileMenuOpen(true)}
         />
         <section className="page-grid">
           <div className="primary-column">
@@ -95,7 +108,25 @@ function App() {
   );
 }
 
-function Sidebar({ mode, setMode }: { mode: ViewMode; setMode: (mode: ViewMode) => void }) {
+function Sidebar({
+  mode,
+  setMode,
+  query,
+  setQuery,
+  theme,
+  setTheme,
+  isOpen,
+  onClose
+}: {
+  mode: ViewMode;
+  setMode: (mode: ViewMode) => void;
+  query: string;
+  setQuery: (value: string) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   const nav = [
     { label: "Home", icon: Home },
     { label: "Projects", icon: BriefcaseBusiness },
@@ -107,13 +138,14 @@ function Sidebar({ mode, setMode }: { mode: ViewMode; setMode: (mode: ViewMode) 
   ];
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "mobile-open" : ""}`}>
       <div className="brand-block">
         <div className="avatar">MW</div>
         <div>
           <strong>{profile.name}</strong>
           <span>{profile.role}</span>
         </div>
+        <button className="mobile-close" aria-label="Close menu" onClick={onClose}><X size={18} /></button>
       </div>
 
       <nav className="nav-list">
@@ -127,6 +159,18 @@ function Sidebar({ mode, setMode }: { mode: ViewMode; setMode: (mode: ViewMode) 
           );
         })}
       </nav>
+
+      <div className="mobile-menu-tools">
+        <div className="search-box">
+          <Search size={18} />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects, skills..." />
+        </div>
+        <div className="mobile-action-grid">
+          <button className="ghost" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>{theme === "light" ? <Moon size={17} /> : <Sun size={17} />} Theme</button>
+          <a className="ghost" href={profile.cvUrl}><Download size={17} /> CV</a>
+          <a className="primary-button" href={profile.linkedin} target="_blank" rel="noreferrer">Contact <ArrowRight size={17} /></a>
+        </div>
+      </div>
 
       <div className="mode-switches">
         <ModeCard
@@ -164,9 +208,28 @@ function ModeCard({ title, text, active, onClick }: { title: string; text: strin
   );
 }
 
-function Topbar({ query, setQuery, theme, setTheme }: { query: string; setQuery: (value: string) => void; theme: Theme; setTheme: (theme: Theme) => void }) {
+function Topbar({
+  query,
+  setQuery,
+  theme,
+  setTheme,
+  onOpenMenu
+}: {
+  query: string;
+  setQuery: (value: string) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  onOpenMenu: () => void;
+}) {
   return (
     <header className="topbar">
+      <div className="mobile-top-brand">
+        <div className="avatar">MW</div>
+        <div>
+          <strong>{profile.name}</strong>
+          <span>{profile.role}</span>
+        </div>
+      </div>
       <div className="search-box">
         <Search size={18} />
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search for skills, projects, articles..." />
@@ -177,6 +240,7 @@ function Topbar({ query, setQuery, theme, setTheme }: { query: string; setQuery:
         <a className="ghost" href={profile.cvUrl}><Download size={17} /> Download CV</a>
         <a className="primary-button" href={profile.linkedin} target="_blank" rel="noreferrer">Let's Connect <ArrowRight size={17} /></a>
       </div>
+      <button className="menu-button" aria-label="Open menu" onClick={onOpenMenu}><Menu size={20} /></button>
     </header>
   );
 }
